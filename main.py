@@ -108,28 +108,3 @@ def main():
 
 
 main()
-
-# compressed_image(Image.open('item_image2056.png'))
-
-
-# compress_png('item_image2056.png', 'compressed_item_image2056.png')
-
-
-
-# ftp.cwd('www/дымоход22.рф/upload/shop_1/2/0/4/item_2043/')
-
-# Получение списка файлов
-# files = ftp.nlst()
-# print(files)
-
-# Загрузка файла
-# with open('item_image2043.png', 'wb') as f:
-#     ftp.retrbinary('RETR item_image2043.png', f.write)
-
-# # Загрузка файла на сервер
-# with open('local_file.txt', 'rb') as f:
-#     ftp.storbinary('STOR remote_file.txt', f)
-
-# Закрытие соединения
-# ftp.quit()
-
