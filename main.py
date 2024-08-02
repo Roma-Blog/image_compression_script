@@ -3,9 +3,7 @@ from ftplib import FTP
 
 import config,subprocess, os, shutil
 
-list_paths : list
-path : str
-name_file : str
+test_path = 'https://дымоход22.рф/upload/shop_1/2/0/1/item_2010/item_image2010.png'
 
 def compressed_image(_img, _file_name):
     try:
@@ -62,7 +60,7 @@ def ftp_retrbinary(_ftp, _path, _name_file):
             report_error('Такого файла нет: ' + _name_file)
 
 def ftp_storbinary(_ftp, _path, _name_file):
-    _ftp.cwd('www' + _path)
+    print ('текущая директория: ' + _ftp.pwd())
     _ftp.storbinary('STOR ' + _name_file, open(_name_file, 'rb'))
 
 def file_format(_file_name):
@@ -80,6 +78,11 @@ def report_error(_error):
         f.write('\n'.join(array_error))
 
 def main():
+
+    list_paths : list
+    path : str
+    name_file : str
+
     try:
         ftp = FTP(config.FTP)
         ftp.login(config.LOGIN, config.PASSWORD)
@@ -96,14 +99,16 @@ def main():
 
     file_has = True
 
-    ftp_retrbinary(ftp, get_path('https://дымоход22.рф/upload/shop_1/1/5/2/item_1520/item_1327455.jpg'), get_name_file('https://дымоход22.рф/upload/shop_1/1/5/2/item_1520/item_1327455.jpg'))
+    ftp_retrbinary(ftp, get_path(test_path), get_name_file(test_path))
 
     if file_has:
-        if file_format(get_name_file('https://дымоход22.рф/upload/shop_1/1/5/2/item_1520/item_1327455.jpg')) == 'png':
-            compress_png(get_name_file(list_paths[0]), 'compressed-' + get_name_file(list_paths[0]))
+        if file_format(get_name_file(test_path)) == 'png':
+            compress_png(get_name_file(test_path), 'compressed-' + get_name_file(test_path))
         else:
-            compressed_image(Image.open(get_name_file('https://дымоход22.рф/upload/shop_1/1/5/2/item_1520/item_1327455.jpg')), get_name_file('https://дымоход22.рф/upload/shop_1/1/5/2/item_1520/item_1327455.jpg'))
+            compressed_image(Image.open(get_name_file(test_path)), get_name_file(test_path))
 
+        ftp_storbinary(ftp, get_path(test_path), get_name_file(test_path))
+        os.remove(get_name_file(test_path))
     ftp.quit()
 
 
