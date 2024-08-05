@@ -3,7 +3,7 @@ from ftplib import FTP
 
 import config,subprocess, os, shutil
 
-test_path = 'https://дымоход22.рф/upload/shop_1/2/0/1/item_2010/item_image2010.png'
+test_path = 'https://дымоход22.рф/upload/shop_1/4/3/1/item_4315/item_4315.jpg'
 
 def compressed_image(_img, _file_name):
     try:
@@ -54,14 +54,11 @@ def ftp_retrbinary(_ftp, _path, _name_file):
     with open(_name_file, 'wb') as f:
         try:
             _ftp.retrbinary('RETR ' + _name_file, f.write)
+            print('Файл успешно получен: ' + _name_file)
         except Exception as e:
             file_has = False
             os.remove(_name_file)
             report_error('Такого файла нет: ' + _name_file)
-
-def ftp_storbinary(_ftp, _path, _name_file):
-    print ('текущая директория: ' + _ftp.pwd())
-    _ftp.storbinary('STOR ' + _name_file, open(_name_file, 'rb'))
 
 def file_format(_file_name):
     return _file_name.split('.')[-1]
@@ -80,8 +77,6 @@ def report_error(_error):
 def main():
 
     list_paths : list
-    path : str
-    name_file : str
 
     try:
         ftp = FTP(config.FTP)
@@ -97,18 +92,40 @@ def main():
         ftp.quit()
         return
 
-    file_has = True
 
-    ftp_retrbinary(ftp, get_path(test_path), get_name_file(test_path))
+    for item in list_paths:
+           
+        path = get_path(item)
+        name_file = get_name_file(item)
+        file_has = True
 
-    if file_has:
-        if file_format(get_name_file(test_path)) == 'png':
-            compress_png(get_name_file(test_path), 'compressed-' + get_name_file(test_path))
-        else:
-            compressed_image(Image.open(get_name_file(test_path)), get_name_file(test_path))
+        print(item)
 
-        ftp_storbinary(ftp, get_path(test_path), get_name_file(test_path))
-        os.remove(get_name_file(test_path))
+        ftp_retrbinary(ftp, path, name_file)
+
+        if file_has:
+
+            save_can = True
+
+            if file_format(name_file) == 'png':
+                try:
+                    compress_png(name_file, 'compressed-' + name_file)
+                except Exception as e:
+                    save_can = False
+                    report_error('Не удалось сжать: ' + path + name_file)
+            else:
+                try:
+                    compressed_image(Image.open(name_file), name_file)
+                except Exception as e:
+                    save_can = False
+                    report_error('Не удалось сжать: ' + path + name_file)
+
+            if save_can:
+                ftp.delete(name_file)
+                ftp.storbinary('STOR ' + name_file, open(name_file, 'rb'))
+                os.remove(name_file)
+            ftp.cwd('/')
+
     ftp.quit()
 
 
